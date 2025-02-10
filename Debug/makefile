@@ -60,8 +60,8 @@ all: main-build
 main-build: VSSS_FIRMWARE.elf secondary-outputs
 
 # Tool invocations
-VSSS_FIRMWARE.elf VSSS_FIRMWARE.map: $(OBJS) $(USER_OBJS) /home/thxssio/STM32CubeIDE/workspace_1.17.0/MOTOR_PWM/STM32G431CBUX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "VSSS_FIRMWARE.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"/home/thxssio/STM32CubeIDE/workspace_1.17.0/MOTOR_PWM/STM32G431CBUX_FLASH.ld" --specs=nosys.specs -Wl,-Map="VSSS_FIRMWARE.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+VSSS_FIRMWARE.elf VSSS_FIRMWARE.map: $(OBJS) $(USER_OBJS) /home/thxssio/STM32CubeIDE/workspace_1.17.0/VSSS_FIRMWARE/STM32G431CBUX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "VSSS_FIRMWARE.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"/home/thxssio/STM32CubeIDE/workspace_1.17.0/VSSS_FIRMWARE/STM32G431CBUX_FLASH.ld" --specs=nosys.specs -Wl,-Map="VSSS_FIRMWARE.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
