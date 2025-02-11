@@ -37,10 +37,10 @@
 /* USER CODE BEGIN PD */
 
 #define PWM_MAX  1699
-#define PWM_MIN  0
+#define PWM_MIN  120
 #define ENCODER_PULSES_PER_REV 2750
 #define WHEEL_RADIUS 0.06
-#define OUTPUT_TOLERANCE 1.0
+#define OUTPUT_TOLERANCE 3.0
 
 /* USER CODE END PD */
 
@@ -79,6 +79,7 @@ double inputRight  = 0.0;
 
 float vL = 0.0;
 float vR = 0.0;
+
 
 int16_t last_left_encoder  = 0;
 int16_t last_right_encoder = 0;
@@ -166,36 +167,49 @@ void Set_Motor_Speeds(float vL, float vR) {
     float target_rpm_left  = (vL * 60.0) / (2 * M_PI * WHEEL_RADIUS);
     float target_rpm_right = (vR * 60.0) / (2 * M_PI * WHEEL_RADIUS);
 
-    setpoint_left_rpm = target_rpm_left;
+    setpoint_left_rpm  = target_rpm_left;
     setpoint_right_rpm = target_rpm_right;
 
-    inputLeft = left_rpm;
+    inputLeft  = left_rpm;
     inputRight = right_rpm;
 
     PID_Compute(&pidLeft);
     PID_Compute(&pidRight);
 
+
+    if (outputLeft > PWM_MAX) {
+        outputLeft = PWM_MAX;
+    } else if (outputLeft < -PWM_MAX) {
+        outputLeft = -PWM_MAX;
+    }
+
+    if (outputRight > PWM_MAX) {
+        outputRight = PWM_MAX;
+    } else if (outputRight < -PWM_MAX) {
+        outputRight = -PWM_MAX;
+    }
+
+
+    if (fabs(outputLeft) < OUTPUT_TOLERANCE) outputLeft = 0;
+    if (fabs(outputRight) < OUTPUT_TOLERANCE) outputRight = 0;
+
+
     float pwm_left  = fabs(outputLeft);
     float pwm_right = fabs(outputRight);
 
-    if (pwm_left < OUTPUT_TOLERANCE) {
-         pwm_left = 0;
-    } else {
-         pwm_left  = fmax(pwm_left, PWM_MIN);
-         pwm_left  = fmin(pwm_left, PWM_MAX);
-    }
+    pwm_left  = fmax(pwm_left, PWM_MIN);
+    pwm_left  = fmin(pwm_left, PWM_MAX);
+    pwm_right = fmax(pwm_right, PWM_MIN);
+    pwm_right = fmin(pwm_right, PWM_MAX);
 
-    if (pwm_right < OUTPUT_TOLERANCE) {
-         pwm_right = 0;
-    } else {
-         pwm_right = fmax(pwm_right, PWM_MIN);
-         pwm_right = fmin(pwm_right, PWM_MAX);
-    }
 
     uint8_t dir_left  = (outputLeft >= 0) ? 0 : 1;
     uint8_t dir_right = (outputRight >= 0) ? 0 : 1;
 
     Motor_Control((uint32_t)pwm_left, dir_left, (uint32_t)pwm_right, dir_right);
+
+    outputLeft = 0;
+    outputRight = 0;
 }
 
 //COLETAS DE DADOS
@@ -257,8 +271,8 @@ int main(void)
   last_left_encoder  = (int16_t)__HAL_TIM_GET_COUNTER(&htim3);
   last_right_encoder = (int16_t)__HAL_TIM_GET_COUNTER(&htim4);
 
-  PID2(&pidLeft, &inputLeft, &outputLeft, &setpoint_left_rpm, 12.38, 100.0, 0.0, _PID_CD_DIRECT);
-  PID2(&pidRight, &inputRight, &outputRight, &setpoint_right_rpm, 12.38, 100.0, 0.0, _PID_CD_DIRECT);
+  PID2(&pidLeft, &inputLeft, &outputLeft, &setpoint_left_rpm, 12.38, 80.0, 0.2, _PID_CD_DIRECT);
+  PID2(&pidRight, &inputRight, &outputRight, &setpoint_right_rpm, 12.38, 80.0, 0.2, _PID_CD_DIRECT);
 
   PID_SetOutputLimits(&pidLeft, -PWM_MAX, PWM_MAX);
   PID_SetOutputLimits(&pidRight, -PWM_MAX, PWM_MAX);
@@ -292,7 +306,7 @@ int main(void)
       Set_Motor_Speeds(vL, vR);
 //      Motor_Control((uint32_t)pwm_left, 1, (uint32_t)pwm_right, 1); //COLETAS DE DADOS
 //      Send_Data_to_PC(); //COLETAS DE DADOS
-      HAL_Delay(100);
+      HAL_Delay(10);
   }
     /* USER CODE END WHILE */
 
