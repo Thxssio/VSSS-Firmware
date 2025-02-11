@@ -1,6 +1,0 @@
-../Core/Src/main.c:97:6:Motor_Control	16	static
-../Core/Src/main.c:119:6:Calculate_RPM	40	static
-../Core/Src/main.c:140:6:Set_Motor_Speeds	56	static
-../Core/Src/main.c:249:6:SystemClock_Config	88	static,ignoring_inline_asm
-../Core/Src/main.c:177:5:main	136	static,ignoring_inline_asm
-../Core/Src/main.c:577:6:Error_Handler	0	static,ignoring_inline_asm

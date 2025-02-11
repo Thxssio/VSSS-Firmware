@@ -23,6 +23,8 @@
 #include "PID.h"
 #include <math.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include "nrf24l01p.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -95,6 +97,8 @@ static void MX_USART1_UART_Init(void);
 void Motor_Control(uint32_t pwm_left, uint8_t dir_left, uint32_t pwm_right, uint8_t dir_right);
 void Calculate_RPM(void);
 void Set_Motor_Speeds(float vL, float vR);
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin);
+
 
 /* USER CODE END PFP */
 
@@ -113,13 +117,13 @@ void Motor_Control(uint32_t pwm_left, uint8_t dir_left,
 
   // Motor Esquerdo
   __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, pwm_left);
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, (GPIO_PinState)(dir_left));
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, (GPIO_PinState)(!dir_left));
+  HAL_GPIO_WritePin(INA1_GPIO_Port, INA1_Pin, (GPIO_PinState)(dir_left));
+  HAL_GPIO_WritePin(INA2_GPIO_Port, INA2_Pin, (GPIO_PinState)(!dir_left));
 
   // Motor Direito
   __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, pwm_right);
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9,  (GPIO_PinState)(dir_right));
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10, (GPIO_PinState)(!dir_right));
+  HAL_GPIO_WritePin(INB1_GPIO_Port, INB1_Pin,  (GPIO_PinState)(dir_right));
+  HAL_GPIO_WritePin(INB2_GPIO_Port, INB2_Pin, (GPIO_PinState)(!dir_right));
 }
 
 void Calculate_RPM(void) {
@@ -173,7 +177,14 @@ void Set_Motor_Speeds(float vL, float vR) {
     Motor_Control((uint32_t)pwm_left, dir_left, (uint32_t)pwm_right, dir_right);
 }
 
+uint8_t RxAddress[] = {0xEE,0xDD,0xCC,0xBB,0xAA};
+uint8_t RxData[32];
+uint8_t data[50];
+uint8_t status;
 
+char buffer[64];
+char msg1[] = "VSSS Ready\r\n";
+char msg2[] = "Not Received\r\n";
 /* USER CODE END 0 */
 
 /**
@@ -234,14 +245,28 @@ int main(void)
   PID_SetMode(&pidLeft, _PID_MODE_AUTOMATIC);
   PID_SetMode(&pidRight, _PID_MODE_AUTOMATIC);
 
+  NRF24_Init();
+  NRF24_RxMode(RxAddress,76);
+  HAL_UART_Transmit(&huart1, (uint8_t*)msg1, strlen(msg1), 1000);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  Set_Motor_Speeds(vL, vR);
-	  HAL_Delay(10);
+      if (isDataAvailable(2) == 1)
+      {
+          NRF24_Receive(RxData);
+          uint8_t status = nrf24_ReadReg(STATUS);
+          memcpy(&vL, &RxData[0], sizeof(float));
+          memcpy(&vR, &RxData[4], sizeof(float));
+      }
+
+      snprintf((char *)data, sizeof(data), "vL: %.2f, vR: %.2f\r\n", vL, vR);
+      HAL_UART_Transmit(&huart1, data, strlen((char *)data), 1000);
+      Set_Motor_Speeds(vL, vR);
+      HAL_Delay(100);
   }
     /* USER CODE END WHILE */
 
@@ -314,11 +339,11 @@ static void MX_SPI1_Init(void)
   hspi1.Instance = SPI1;
   hspi1.Init.Mode = SPI_MODE_MASTER;
   hspi1.Init.Direction = SPI_DIRECTION_2LINES;
-  hspi1.Init.DataSize = SPI_DATASIZE_4BIT;
+  hspi1.Init.DataSize = SPI_DATASIZE_8BIT;
   hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
   hspi1.Init.NSS = SPI_NSS_SOFT;
-  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
+  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_32;
   hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
   hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
@@ -640,17 +665,27 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_9|GPIO_PIN_10, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, INA1_Pin|INA2_Pin|INB1_Pin|INB2_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOB, CSN_Pin|CE_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : PA1 PA2 PA9 PA10 */
-  GPIO_InitStruct.Pin = GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_9|GPIO_PIN_10;
+  /*Configure GPIO pins : INA1_Pin INA2_Pin INB1_Pin INB2_Pin */
+  GPIO_InitStruct.Pin = INA1_Pin|INA2_Pin|INB1_Pin|INB2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : CSN_Pin CE_Pin */
+  GPIO_InitStruct.Pin = CSN_Pin|CE_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure GPIO pin : LED_Pin */
   GPIO_InitStruct.Pin = LED_Pin;
