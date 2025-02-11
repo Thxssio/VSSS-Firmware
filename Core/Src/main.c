@@ -164,6 +164,8 @@ void Calculate_RPM(void) {
 void Set_Motor_Speeds(float vL, float vR) {
     Calculate_RPM();
 
+
+
     float target_rpm_left  = (vL * 60.0) / (2 * M_PI * WHEEL_RADIUS);
     float target_rpm_right = (vR * 60.0) / (2 * M_PI * WHEEL_RADIUS);
 
@@ -208,8 +210,6 @@ void Set_Motor_Speeds(float vL, float vR) {
 
     Motor_Control((uint32_t)pwm_left, dir_left, (uint32_t)pwm_right, dir_right);
 
-    outputLeft = 0;
-    outputRight = 0;
 }
 
 //COLETAS DE DADOS
@@ -271,8 +271,8 @@ int main(void)
   last_left_encoder  = (int16_t)__HAL_TIM_GET_COUNTER(&htim3);
   last_right_encoder = (int16_t)__HAL_TIM_GET_COUNTER(&htim4);
 
-  PID2(&pidLeft, &inputLeft, &outputLeft, &setpoint_left_rpm, 12.38, 80.0, 0.2, _PID_CD_DIRECT);
-  PID2(&pidRight, &inputRight, &outputRight, &setpoint_right_rpm, 12.38, 80.0, 0.2, _PID_CD_DIRECT);
+  PID2(&pidLeft, &inputLeft, &outputLeft, &setpoint_left_rpm, 19.42, 435.7, 0.2, _PID_CD_DIRECT);
+  PID2(&pidRight, &inputRight, &outputRight, &setpoint_right_rpm, 19.42, 435.7, 0.2, _PID_CD_DIRECT);
 
   PID_SetOutputLimits(&pidLeft, -PWM_MAX, PWM_MAX);
   PID_SetOutputLimits(&pidRight, -PWM_MAX, PWM_MAX);
