@@ -20,11 +20,18 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "PID.h"
+
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
+
 #include "nrf24l01p.h"
+#include "kinematics.h"
+#include "encoder.h"
+
+
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -35,12 +42,6 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
-#define PWM_MAX  1699
-#define PWM_MIN  120
-#define ENCODER_PULSES_PER_REV 2750
-#define WHEEL_RADIUS 0.06
-#define OUTPUT_TOLERANCE 3.0
 
 /* USER CODE END PD */
 
@@ -60,39 +61,17 @@ TIM_HandleTypeDef htim4;
 UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
-PID_TypeDef pidLeft, pidRight;
-
-double left_rpm  = 0.0;
-double right_rpm = 0.0;
-
-//double pwm_left  = 0.0; //COLETAS DE DADOS
-//double pwm_right = 0.0; //COLETAS DE DADOS
-
-double setpoint_left_rpm  = 0.0;
-double setpoint_right_rpm = 0.0;
-
-double outputLeft  = 0.0;
-double outputRight = 0.0;
-
-double inputLeft   = 0.0;
-double inputRight  = 0.0;
 
 float vL = 0.0;
 float vR = 0.0;
 
-
-int16_t last_left_encoder  = 0;
-int16_t last_right_encoder = 0;
-uint32_t last_time         = 0;
-
 uint8_t RxAddress[] = {0xEE,0xDD,0xCC,0xBB,0xAA};
 uint8_t RxData[32];
 uint8_t data[50];
-uint8_t status;
 
 char buffer[64];
-char msg1[] = "VSSS Ready\r\n";
-char msg2[] = "Not Received\r\n";
+char msg[] = "VSSS Ready\r\n";
+
 
 
 /* USER CODE END PV */
@@ -107,10 +86,6 @@ static void MX_TIM4_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_USART1_UART_Init(void);
 /* USER CODE BEGIN PFP */
-
-void Motor_Control(uint32_t pwm_left, uint8_t dir_left, uint32_t pwm_right, uint8_t dir_right);
-void Calculate_RPM(void);
-void Set_Motor_Speeds(float vL, float vR);
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin);
 
 
@@ -118,110 +93,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-void Motor_Control(uint32_t pwm_left, uint8_t dir_left,
-                   uint32_t pwm_right, uint8_t dir_right)
-{
-  /*
-     - Motor Esquerdo: PWM no TIM2 CH1
-       pinos de direção: PA1 (dir_left), PA2 (!dir_left) (exemplo)
-     - Motor Direito: PWM no TIM1 CH1
-       pinos de direção: PA9 (dir_right), PA10 (!dir_right) (exemplo)
-     Ajuste conforme seu hardware.
-  */
 
-  // Motor Esquerdo
-  __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, pwm_left);
-  HAL_GPIO_WritePin(INA1_GPIO_Port, INA1_Pin, (GPIO_PinState)(dir_left));
-  HAL_GPIO_WritePin(INA2_GPIO_Port, INA2_Pin, (GPIO_PinState)(!dir_left));
-
-  // Motor Direito
-  __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, pwm_right);
-  HAL_GPIO_WritePin(INB1_GPIO_Port, INB1_Pin,  (GPIO_PinState)(dir_right));
-  HAL_GPIO_WritePin(INB2_GPIO_Port, INB2_Pin, (GPIO_PinState)(!dir_right));
-}
-
-void Calculate_RPM(void) {
-    uint32_t now = HAL_GetTick();
-    uint32_t delta_time = now - last_time;
-    if (delta_time == 0) return;
-
-    int16_t current_left_encoder  = (int16_t)__HAL_TIM_GET_COUNTER(&htim3);
-    int16_t current_right_encoder = (int16_t)__HAL_TIM_GET_COUNTER(&htim4);
-
-    int16_t delta_left  = current_left_encoder  - last_left_encoder;
-    int16_t delta_right = current_right_encoder - last_right_encoder;
-
-    float dt_min = ((float)delta_time) / 60000.0f;
-    left_rpm  = (delta_left  / (float)ENCODER_PULSES_PER_REV) / dt_min;
-    right_rpm = (delta_right / (float)ENCODER_PULSES_PER_REV) / dt_min;
-
-    last_left_encoder  = current_left_encoder;
-    last_right_encoder = current_right_encoder;
-    last_time          = now;
-}
-
-
-void Set_Motor_Speeds(float vL, float vR) {
-    Calculate_RPM();
-
-
-
-    float target_rpm_left  = (vL * 60.0) / (2 * M_PI * WHEEL_RADIUS);
-    float target_rpm_right = (vR * 60.0) / (2 * M_PI * WHEEL_RADIUS);
-
-    setpoint_left_rpm  = target_rpm_left;
-    setpoint_right_rpm = target_rpm_right;
-
-    inputLeft  = left_rpm;
-    inputRight = right_rpm;
-
-    PID_Compute(&pidLeft);
-    PID_Compute(&pidRight);
-
-
-    if (outputLeft > PWM_MAX) {
-        outputLeft = PWM_MAX;
-    } else if (outputLeft < -PWM_MAX) {
-        outputLeft = -PWM_MAX;
-    }
-
-    if (outputRight > PWM_MAX) {
-        outputRight = PWM_MAX;
-    } else if (outputRight < -PWM_MAX) {
-        outputRight = -PWM_MAX;
-    }
-
-
-    if (fabs(outputLeft) < OUTPUT_TOLERANCE) outputLeft = 0;
-    if (fabs(outputRight) < OUTPUT_TOLERANCE) outputRight = 0;
-
-
-    float pwm_left  = fabs(outputLeft);
-    float pwm_right = fabs(outputRight);
-
-    pwm_left  = fmax(pwm_left, PWM_MIN);
-    pwm_left  = fmin(pwm_left, PWM_MAX);
-    pwm_right = fmax(pwm_right, PWM_MIN);
-    pwm_right = fmin(pwm_right, PWM_MAX);
-
-
-    uint8_t dir_left  = (outputLeft >= 0) ? 0 : 1;
-    uint8_t dir_right = (outputRight >= 0) ? 0 : 1;
-
-    Motor_Control((uint32_t)pwm_left, dir_left, (uint32_t)pwm_right, dir_right);
-
-}
-
-//COLETAS DE DADOS
-//void Send_Data_to_PC(void) {
-//    char buffer[100];
-//    Calculate_RPM();
-//    snprintf(buffer, sizeof(buffer), "%lu,%.2f,%lu\r\n",
-//             HAL_GetTick(), left_rpm,
-//             (uint32_t)fabs(pwm_left));
-//
-//    HAL_UART_Transmit(&huart1, (uint8_t*)buffer, strlen(buffer), 100);
-//}
 
 /* USER CODE END 0 */
 
@@ -267,25 +139,17 @@ int main(void)
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
 
-  last_time          = HAL_GetTick();
-  last_left_encoder  = (int16_t)__HAL_TIM_GET_COUNTER(&htim3);
-  last_right_encoder = (int16_t)__HAL_TIM_GET_COUNTER(&htim4);
 
-  PID2(&pidLeft, &inputLeft, &outputLeft, &setpoint_left_rpm, 19.42, 435.7, 0.2, _PID_CD_DIRECT);
-  PID2(&pidRight, &inputRight, &outputRight, &setpoint_right_rpm, 19.42, 435.7, 0.2, _PID_CD_DIRECT);
-
-  PID_SetOutputLimits(&pidLeft, -PWM_MAX, PWM_MAX);
-  PID_SetOutputLimits(&pidRight, -PWM_MAX, PWM_MAX);
-
-  PID_SetSampleTime(&pidLeft, 10);
-  PID_SetSampleTime(&pidRight, 10);
-
-  PID_SetMode(&pidLeft, _PID_MODE_AUTOMATIC);
-  PID_SetMode(&pidRight, _PID_MODE_AUTOMATIC);
-
+  Encoder_Init(&left_encoder, &htim3);
+  Encoder_Init(&right_encoder, &htim4);
+  Motor_Init(&motorLeft, &htim2, TIM_CHANNEL_1, INA1_GPIO_Port, INA1_Pin, INA2_GPIO_Port, INA2_Pin);
+  Motor_Init(&motorRight, &htim1, TIM_CHANNEL_1, INB1_GPIO_Port, INB1_Pin, INB2_GPIO_Port, INB2_Pin);
+  Kinematics_Init();
   NRF24_Init();
   NRF24_RxMode(RxAddress,76);
-  HAL_UART_Transmit(&huart1, (uint8_t*)msg1, strlen(msg1), 1000);
+
+
+  HAL_UART_Transmit(&huart1, (uint8_t*)msg, strlen(msg), 1000);
 
   /* USER CODE END 2 */
 
@@ -293,19 +157,17 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+
       if (isDataAvailable(2) == 1)
       {
-          NRF24_Receive(RxData);
-          uint8_t status = nrf24_ReadReg(STATUS);
-          memcpy(&vL, &RxData[0], sizeof(float));
+    	  NRF24_Receive(RxData);
+    	  memcpy(&vL, &RxData[0], sizeof(float));
           memcpy(&vR, &RxData[4], sizeof(float));
       }
 
       snprintf((char *)data, sizeof(data), "vL: %.2f, vR: %.2f\r\n", vL, vR);
       HAL_UART_Transmit(&huart1, data, strlen((char *)data), 1000);
-      Set_Motor_Speeds(vL, vR);
-//      Motor_Control((uint32_t)pwm_left, 1, (uint32_t)pwm_right, 1); //COLETAS DE DADOS
-//      Send_Data_to_PC(); //COLETAS DE DADOS
+      Kinematics_SetSpeeds(vL, vR);
       HAL_Delay(10);
   }
     /* USER CODE END WHILE */

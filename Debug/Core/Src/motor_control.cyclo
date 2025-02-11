@@ -1,0 +1,2 @@
+../Core/Src/motor_control.c:12:6:Motor_Init	1
+../Core/Src/motor_control.c:25:6:Motor_Control	1
