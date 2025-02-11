@@ -37,9 +37,10 @@
 /* USER CODE BEGIN PD */
 
 #define PWM_MAX  1699
-#define PWM_MIN  100
+#define PWM_MIN  0
 #define ENCODER_PULSES_PER_REV 2750
 #define WHEEL_RADIUS 0.06
+#define OUTPUT_TOLERANCE 1.0
 
 /* USER CODE END PD */
 
@@ -64,6 +65,9 @@ PID_TypeDef pidLeft, pidRight;
 double left_rpm  = 0.0;
 double right_rpm = 0.0;
 
+//double pwm_left  = 0.0; //COLETAS DE DADOS
+//double pwm_right = 0.0; //COLETAS DE DADOS
+
 double setpoint_left_rpm  = 0.0;
 double setpoint_right_rpm = 0.0;
 
@@ -79,6 +83,15 @@ float vR = 0.0;
 int16_t last_left_encoder  = 0;
 int16_t last_right_encoder = 0;
 uint32_t last_time         = 0;
+
+uint8_t RxAddress[] = {0xEE,0xDD,0xCC,0xBB,0xAA};
+uint8_t RxData[32];
+uint8_t data[50];
+uint8_t status;
+
+char buffer[64];
+char msg1[] = "VSSS Ready\r\n";
+char msg2[] = "Not Received\r\n";
 
 
 /* USER CODE END PV */
@@ -165,11 +178,19 @@ void Set_Motor_Speeds(float vL, float vR) {
     float pwm_left  = fabs(outputLeft);
     float pwm_right = fabs(outputRight);
 
-    pwm_left  = fmax(pwm_left, PWM_MIN);
-    pwm_right = fmax(pwm_right, PWM_MIN);
+    if (pwm_left < OUTPUT_TOLERANCE) {
+         pwm_left = 0;
+    } else {
+         pwm_left  = fmax(pwm_left, PWM_MIN);
+         pwm_left  = fmin(pwm_left, PWM_MAX);
+    }
 
-    pwm_left  = fmin(pwm_left, PWM_MAX);
-    pwm_right = fmin(pwm_right, PWM_MAX);
+    if (pwm_right < OUTPUT_TOLERANCE) {
+         pwm_right = 0;
+    } else {
+         pwm_right = fmax(pwm_right, PWM_MIN);
+         pwm_right = fmin(pwm_right, PWM_MAX);
+    }
 
     uint8_t dir_left  = (outputLeft >= 0) ? 0 : 1;
     uint8_t dir_right = (outputRight >= 0) ? 0 : 1;
@@ -177,14 +198,17 @@ void Set_Motor_Speeds(float vL, float vR) {
     Motor_Control((uint32_t)pwm_left, dir_left, (uint32_t)pwm_right, dir_right);
 }
 
-uint8_t RxAddress[] = {0xEE,0xDD,0xCC,0xBB,0xAA};
-uint8_t RxData[32];
-uint8_t data[50];
-uint8_t status;
+//COLETAS DE DADOS
+//void Send_Data_to_PC(void) {
+//    char buffer[100];
+//    Calculate_RPM();
+//    snprintf(buffer, sizeof(buffer), "%lu,%.2f,%lu\r\n",
+//             HAL_GetTick(), left_rpm,
+//             (uint32_t)fabs(pwm_left));
+//
+//    HAL_UART_Transmit(&huart1, (uint8_t*)buffer, strlen(buffer), 100);
+//}
 
-char buffer[64];
-char msg1[] = "VSSS Ready\r\n";
-char msg2[] = "Not Received\r\n";
 /* USER CODE END 0 */
 
 /**
@@ -266,6 +290,8 @@ int main(void)
       snprintf((char *)data, sizeof(data), "vL: %.2f, vR: %.2f\r\n", vL, vR);
       HAL_UART_Transmit(&huart1, data, strlen((char *)data), 1000);
       Set_Motor_Speeds(vL, vR);
+//      Motor_Control((uint32_t)pwm_left, 1, (uint32_t)pwm_right, 1); //COLETAS DE DADOS
+//      Send_Data_to_PC(); //COLETAS DE DADOS
       HAL_Delay(100);
   }
     /* USER CODE END WHILE */
