@@ -7,6 +7,7 @@
 
 void Kinematics_Init(void);
 float LinearToRPM(float v);
+float RPMToLinear(double RPM);
 void Kinematics_SetSpeeds(float vL, float vR);
 
 #endif /* KINEMATICS_H */

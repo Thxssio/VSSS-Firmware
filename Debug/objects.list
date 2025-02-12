@@ -1,3 +1,4 @@
+"./Core/Src/EKF.o"
 "./Core/Src/IMU.o"
 "./Core/Src/PID.o"
 "./Core/Src/VSSS.o"

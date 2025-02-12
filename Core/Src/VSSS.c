@@ -17,7 +17,7 @@ char msg[] = "VSSS Ready\r\n";
 void VSSS_Init(void) {
     Kinematics_Init();
     NRF24_Init();
-    NRF24_RxMode(RxAddress, 76);
+    NRF24_RxMode(RxAddress, 86);
 
     HAL_UART_Transmit(&huart1, (uint8_t*)msg, strlen(msg), 1000);
 
