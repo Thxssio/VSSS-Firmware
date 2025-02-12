@@ -5,7 +5,7 @@
  * Se o Timer foi configurado com Period = 2739,
  * então ele conta de 0..2739 (total de 2740 contagens).
  */
-#define ENCODER_PULSES_PER_REV 2740
+#define ENCODER_PULSES_PER_REV 2750
 
 Encoder left_encoder;
 Encoder right_encoder;

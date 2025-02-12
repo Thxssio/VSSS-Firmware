@@ -1,0 +1,5 @@
+../Core/Src/IMU.c:10:6:IMU_Init	2
+../Core/Src/IMU.c:21:6:IMU_WriteReg	1
+../Core/Src/IMU.c:28:9:IMU_ReadReg	1
+../Core/Src/IMU.c:38:6:IMU_ReadAccelData	1
+../Core/Src/IMU.c:52:6:IMU_ReadGyroData	1

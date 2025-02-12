@@ -1,0 +1,5 @@
+../Core/Src/IMU.c:10:6:IMU_Init	16	static
+../Core/Src/IMU.c:21:6:IMU_WriteReg	24	static
+../Core/Src/IMU.c:28:9:IMU_ReadReg	24	static
+../Core/Src/IMU.c:38:6:IMU_ReadAccelData	24	static
+../Core/Src/IMU.c:52:6:IMU_ReadGyroData	24	static

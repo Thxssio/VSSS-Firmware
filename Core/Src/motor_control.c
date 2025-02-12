@@ -31,12 +31,14 @@ void Motor_Control(uint32_t pwm_left, uint8_t dir_left, uint32_t pwm_right, uint
     */
 
     // Motor Esquerdo
-    __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, pwm_left);
     HAL_GPIO_WritePin(INA1_GPIO_Port, INA1_Pin, (GPIO_PinState)(dir_left));
     HAL_GPIO_WritePin(INA2_GPIO_Port, INA2_Pin, (GPIO_PinState)(!dir_left));
 
     // Motor Direito
-    __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, pwm_right);
     HAL_GPIO_WritePin(INB1_GPIO_Port, INB1_Pin,  (GPIO_PinState)(dir_right));
     HAL_GPIO_WritePin(INB2_GPIO_Port, INB2_Pin, (GPIO_PinState)(!dir_right));
+
+    // PWM
+    __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, pwm_left);
+    __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, pwm_right);
 }
