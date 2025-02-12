@@ -21,17 +21,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
-#include <math.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-
-#include "nrf24l01p.h"
-#include "kinematics.h"
-#include "encoder.h"
-
-
-
+#include "VSSS.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -61,18 +51,6 @@ TIM_HandleTypeDef htim4;
 UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
-
-float vL = 0.0;
-float vR = 0.0;
-
-uint8_t RxAddress[] = {0xEE,0xDD,0xCC,0xBB,0xAA};
-uint8_t RxData[32];
-uint8_t data[50];
-
-char buffer[64];
-char msg[] = "VSSS Ready\r\n";
-
-
 
 /* USER CODE END PV */
 
@@ -133,42 +111,15 @@ int main(void)
   MX_SPI1_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
+  VSSS_Init();
 
-  HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_ALL);
-  HAL_TIM_Encoder_Start(&htim4, TIM_CHANNEL_ALL);
-  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
-  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
-
-
-  Encoder_Init(&left_encoder, &htim3);
-  Encoder_Init(&right_encoder, &htim4);
-  Motor_Init(&motorLeft, &htim2, TIM_CHANNEL_1, INA1_GPIO_Port, INA1_Pin, INA2_GPIO_Port, INA2_Pin);
-  Motor_Init(&motorRight, &htim1, TIM_CHANNEL_1, INB1_GPIO_Port, INB1_Pin, INB2_GPIO_Port, INB2_Pin);
-  Kinematics_Init();
-  NRF24_Init();
-  NRF24_RxMode(RxAddress,76);
-
-
-  HAL_UART_Transmit(&huart1, (uint8_t*)msg, strlen(msg), 1000);
-
-  /* USER CODE END 2 */
+ /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-
-      if (isDataAvailable(2) == 1)
-      {
-    	  NRF24_Receive(RxData);
-    	  memcpy(&vL, &RxData[0], sizeof(float));
-          memcpy(&vR, &RxData[4], sizeof(float));
-      }
-
-      snprintf((char *)data, sizeof(data), "vL: %.2f, vR: %.2f\r\n", vL, vR);
-      HAL_UART_Transmit(&huart1, data, strlen((char *)data), 1000);
-      Kinematics_SetSpeeds(vL, vR);
-      HAL_Delay(10);
+	  VSSS_Run();
   }
     /* USER CODE END WHILE */
 
