@@ -39,7 +39,7 @@ void VSSS_Run(void) {
 	char data[50];
     snprintf(data, sizeof(data), "vL: %.2f, vR: %.2f\r\n", robot.vL, robot.vR);
     HAL_UART_Transmit(&huart1, (uint8_t*)data, strlen(data), 1000);
-
+    Encoder_Update();
     Kinematics_SetSpeeds(robot.vL, robot.vR);
 
 }

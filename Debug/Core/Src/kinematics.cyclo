@@ -1,3 +1,3 @@
 ../Core/Src/kinematics.c:20:6:Kinematics_Init	1
-../Core/Src/kinematics.c:37:7:LinearToRPM	1
-../Core/Src/kinematics.c:45:6:Kinematics_SetSpeeds	9
+../Core/Src/kinematics.c:39:7:LinearToRPM	1
+../Core/Src/kinematics.c:47:6:Kinematics_SetSpeeds	9
