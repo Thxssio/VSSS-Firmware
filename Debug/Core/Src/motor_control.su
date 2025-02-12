@@ -1,2 +1,2 @@
-../Core/Src/motor_control.c:12:6:Motor_Init	24	static
-../Core/Src/motor_control.c:25:6:Motor_Control	24	static
+../Core/Src/motor_control.c:11:6:Motor_Init	24	static
+../Core/Src/motor_control.c:24:6:Motor_Control	24	static

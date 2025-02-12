@@ -1,5 +1,4 @@
 #include "motor_control.h"
-#include "encoder.h"
 #include <math.h>
 #include "main.h"
 

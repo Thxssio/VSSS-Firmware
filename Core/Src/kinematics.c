@@ -18,8 +18,8 @@ PID_TypeDef pidLeft, pidRight;
 
 
 void Kinematics_Init(void) {
-	  PID2(&pidLeft, &inputLeft, &outputLeft, &setpoint_left_rpm, 19.42, 435.7, 0.2, _PID_CD_DIRECT);
-	  PID2(&pidRight, &inputRight, &outputRight, &setpoint_right_rpm, 19.42, 435.7, 0.2, _PID_CD_DIRECT);
+	  PID2(&pidLeft, &inputLeft, &outputLeft, &setpoint_left_rpm, 18.81, 626.0, 0.0, _PID_CD_DIRECT);
+	  PID2(&pidRight, &inputRight, &outputRight, &setpoint_right_rpm, 21.18, 863.0, 0.0, _PID_CD_DIRECT);
 
 	  PID_SetOutputLimits(&pidLeft, -PWM_MAX, PWM_MAX);
 	  PID_SetOutputLimits(&pidRight, -PWM_MAX, PWM_MAX);
@@ -43,8 +43,7 @@ float LinearToRPM(float v) {
  *        Chama `Set_Motor_Speeds()` do `motor_control.c` para aplicar nos motores.
  */
 void Kinematics_SetSpeeds(float vL, float vR) {
-	Encoder_Update();
-    float target_rpm_left = LinearToRPM(vL);
+	float target_rpm_left = LinearToRPM(vL);
     float target_rpm_right = LinearToRPM(vR);
 
     setpoint_left_rpm  = target_rpm_left;
@@ -86,5 +85,6 @@ void Kinematics_SetSpeeds(float vL, float vR) {
     uint8_t dir_left  = (outputLeft >= 0) ? 0 : 1;
     uint8_t dir_right = (outputRight >= 0) ? 0 : 1;
 
+	Encoder_Update();
     Motor_Control(pwm_left, dir_left, pwm_right, dir_right);
 }
