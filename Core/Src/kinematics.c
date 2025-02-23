@@ -103,10 +103,10 @@ void Kinematics_SetSpeeds(float vL, float vR) {
     EKF_Predict(&ekf, vL_real, vR_real, 0.01);
     EKF_Update(&ekf, theta_imu, accel[0], accel[1]);
 
-    snprintf(debug_imu, sizeof(debug_imu),
-             "EKF: X = %.2f, Y = %.2f, Theta = %.2f rad, Vel = %.2f m/s\r\n",
-             ekf.x, ekf.y, ekf.theta, ekf.v);
-    HAL_UART_Transmit(&huart1, (uint8_t*)debug_imu, strlen(debug_imu), HAL_MAX_DELAY);
+//    snprintf(debug_imu, sizeof(debug_imu),
+//             "EKF: X = %.2f, Y = %.2f, Theta = %.2f rad, Vel = %.2f m/s\r\n",
+//             ekf.x, ekf.y, ekf.theta, ekf.v);
+//    HAL_UART_Transmit(&huart1, (uint8_t*)debug_imu, strlen(debug_imu), HAL_MAX_DELAY);
 
     float target_rpm_left = LinearToRPM(vL);
     float target_rpm_right = LinearToRPM(vR);

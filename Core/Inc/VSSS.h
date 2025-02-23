@@ -8,6 +8,7 @@
 
 
 typedef struct {
+	int id;
     float vL;
     float vR;
     uint8_t RxData[32];
