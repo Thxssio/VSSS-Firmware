@@ -42,11 +42,6 @@ void VSSS_Run(void) {
         AES_ctx_set_iv(&ctx, iv);
         AES_CBC_decrypt_buffer(&ctx, &robot.RxData[1], AES_BLOCK_SIZE);
 
-//        char debug_buffer[100];
-//        snprintf(debug_buffer, sizeof(debug_buffer), "Raw Data: %02X %02X %02X %02X\r\n",
-//                 robot.RxData[1], robot.RxData[2], robot.RxData[3], robot.RxData[4]);
-//        HAL_UART_Transmit(&huart1, (uint8_t*)debug_buffer, strlen(debug_buffer), 1000);
-
         if (real_size >= sizeof(int) + 2 * sizeof(float)) {
 
             memcpy(&robot.id, &robot.RxData[1], sizeof(int));
@@ -65,7 +60,6 @@ void VSSS_Run(void) {
             }
         } else {
             HAL_UART_Transmit(&huart1, (uint8_t*)"Invalid data received!\r\n", 24, 1000);
-            Kinematics_SetSpeeds(0.0, 0.0);
         }
     }
 }
