@@ -2,6 +2,7 @@
 "./Core/Src/IMU.o"
 "./Core/Src/PID.o"
 "./Core/Src/VSSS.o"
+"./Core/Src/aes.o"
 "./Core/Src/encoder.o"
 "./Core/Src/kinematics.o"
 "./Core/Src/main.o"
