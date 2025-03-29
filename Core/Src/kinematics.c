@@ -59,14 +59,14 @@ void Kinematics_Init(void) {
     Motor_Init(&motorLeft, &htim2, TIM_CHANNEL_1, INA1_GPIO_Port, INA1_Pin, INA2_GPIO_Port, INA2_Pin);
     Motor_Init(&motorRight, &htim1, TIM_CHANNEL_1, INB1_GPIO_Port, INB1_Pin, INB2_GPIO_Port, INB2_Pin);
 
-    PID2(&pidLeft, &inputLeft, &outputLeft, &setpoint_left_rpm, 0.5539, 124.0, 0.001194, _PID_CD_DIRECT);
-    PID2(&pidRight, &inputRight, &outputRight, &setpoint_right_rpm, 0.3515, 84.89, 0.001194, _PID_CD_DIRECT);
+    PID2(&pidLeft, &inputLeft, &outputLeft, &setpoint_left_rpm, 0.8539, 84.0, 0.001194, _PID_CD_DIRECT);
+    PID2(&pidRight, &inputRight, &outputRight, &setpoint_right_rpm, 0.8539, 84.0, 0.001194, _PID_CD_DIRECT);
 
     PID_SetOutputLimits(&pidLeft, -PWM_MAX, PWM_MAX);
     PID_SetOutputLimits(&pidRight, -PWM_MAX, PWM_MAX);
 
-    PID_SetSampleTime(&pidLeft, 10);
-    PID_SetSampleTime(&pidRight, 10);
+    PID_SetSampleTime(&pidLeft, 101);
+    PID_SetSampleTime(&pidRight, 101);
 
     PID_SetMode(&pidLeft, _PID_MODE_AUTOMATIC);
     PID_SetMode(&pidRight, _PID_MODE_AUTOMATIC);

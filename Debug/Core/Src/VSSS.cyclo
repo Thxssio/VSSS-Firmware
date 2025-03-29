@@ -1,2 +1,2 @@
-../Core/Src/VSSS.c:28:6:VSSS_Init	1
-../Core/Src/VSSS.c:37:6:VSSS_Run	4
+../Core/Src/VSSS.c:14:6:VSSS_Init	1
+../Core/Src/VSSS.c:23:6:VSSS_Run	4

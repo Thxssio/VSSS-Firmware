@@ -8,7 +8,7 @@
 ../Core/Src/nrf24l01p.c:110:6:nrf24_ReadReg_Multi	1
 ../Core/Src/nrf24l01p.c:124:6:nrfsendCmd	1
 ../Core/Src/nrf24l01p.c:135:6:nrf24_reset	3
-../Core/Src/nrf24l01p.c:183:6:NRF24_Init	1
+../Core/Src/nrf24l01p.c:184:6:NRF24_Init	1
 ../Core/Src/nrf24l01p.c:214:6:NRF24_TxMode	1
 ../Core/Src/nrf24l01p.c:237:9:NRF24_Transmit	3
 ../Core/Src/nrf24l01p.c:274:6:NRF24_RxMode	1
