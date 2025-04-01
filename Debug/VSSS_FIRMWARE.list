@@ -3235,7 +3235,7 @@ void VSSS_Run(void) {
  8001f24:	b5f0      	push	{r4, r5, r6, r7, lr}
  8001f26:	b093      	sub	sp, #76	@ 0x4c
  8001f28:	af04      	add	r7, sp, #16
-    if (isDataAvailable(2) == 1) {
+   if (isDataAvailable(2) == 1) {
  8001f2a:	2002      	movs	r0, #2
  8001f2c:	f001 f930 	bl	8003190 <isDataAvailable>
  8001f30:	4603      	mov	r3, r0
@@ -3645,7 +3645,7 @@ void Kinematics_Init(void) {
  8002222:	4833      	ldr	r0, [pc, #204]	@ (80022f0 <Kinematics_Init+0x148>)
  8002224:	f000 fd92 	bl	8002d4c <Motor_Init>
 
-    PID2(&pidLeft, &inputLeft, &outputLeft, &setpoint_left_rpm, 0.8539, 84.0, 0.001194, _PID_CD_DIRECT);
+    PID2(&pidLeft, &inputLeft, &outputLeft, &setpoint_left_rpm, 1.378, 390.3, 0.001194, _PID_CD_DIRECT);
  8002228:	2300      	movs	r3, #0
  800222a:	9300      	str	r3, [sp, #0]
  800222c:	ed9f 2b1e 	vldr	d2, [pc, #120]	@ 80022a8 <Kinematics_Init+0x100>
@@ -3656,7 +3656,7 @@ void Kinematics_Init(void) {
  800223c:	492f      	ldr	r1, [pc, #188]	@ (80022fc <Kinematics_Init+0x154>)
  800223e:	4830      	ldr	r0, [pc, #192]	@ (8002300 <Kinematics_Init+0x158>)
  8002240:	f7ff fb96 	bl	8001970 <PID2>
-    PID2(&pidRight, &inputRight, &outputRight, &setpoint_right_rpm, 0.8539, 84.0, 0.001194, _PID_CD_DIRECT);
+    PID2(&pidRight, &inputRight, &outputRight, &setpoint_right_rpm, 1.378, 390.3, 0.001194, _PID_CD_DIRECT);
  8002244:	2300      	movs	r3, #0
  8002246:	9300      	str	r3, [sp, #0]
  8002248:	ed9f 2b17 	vldr	d2, [pc, #92]	@ 80022a8 <Kinematics_Init+0x100>
@@ -3679,12 +3679,12 @@ void Kinematics_Init(void) {
  8002276:	4826      	ldr	r0, [pc, #152]	@ (8002310 <Kinematics_Init+0x168>)
  8002278:	f7ff fca4 	bl	8001bc4 <PID_SetOutputLimits>
 
-    PID_SetSampleTime(&pidLeft, 101);
- 800227c:	2165      	movs	r1, #101	@ 0x65
+    PID_SetSampleTime(&pidLeft, 1);
+ 800227c:	2101      	movs	r1, #1
  800227e:	4820      	ldr	r0, [pc, #128]	@ (8002300 <Kinematics_Init+0x158>)
  8002280:	f7ff fdf6 	bl	8001e70 <PID_SetSampleTime>
-    PID_SetSampleTime(&pidRight, 101);
- 8002284:	2165      	movs	r1, #101	@ 0x65
+    PID_SetSampleTime(&pidRight, 1);
+ 8002284:	2101      	movs	r1, #1
  8002286:	4822      	ldr	r0, [pc, #136]	@ (8002310 <Kinematics_Init+0x168>)
  8002288:	f7ff fdf2 	bl	8001e70 <PID_SetSampleTime>
 
@@ -3704,10 +3704,10 @@ void Kinematics_Init(void) {
  80022a4:	f3af 8000 	nop.w
  80022a8:	bce4217d 	.word	0xbce4217d
  80022ac:	3f538fff 	.word	0x3f538fff
- 80022b0:	00000000 	.word	0x00000000
- 80022b4:	40550000 	.word	0x40550000
- 80022b8:	17c1bda5 	.word	0x17c1bda5
- 80022bc:	3feb5326 	.word	0x3feb5326
+ 80022b0:	cccccccd 	.word	0xcccccccd
+ 80022b4:	407864cc 	.word	0x407864cc
+ 80022b8:	ba5e353f 	.word	0xba5e353f
+ 80022bc:	3ff60c49 	.word	0x3ff60c49
  80022c0:	00000000 	.word	0x00000000
  80022c4:	409a8c00 	.word	0x409a8c00
  80022c8:	00000000 	.word	0x00000000
