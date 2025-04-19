@@ -188,7 +188,7 @@ void nrf24_reset(uint8_t REG)
 	nrf24_WriteReg(EN_AA, 0x3F); // Enable all the data pipes
 	nrf24_WriteReg(EN_RXADDR, 0x03);
 	nrf24_WriteReg(SETUP_AW, 0x03);
-	nrf24_WriteReg(SETUP_RETR, 0x03); // 0x3F = 4000us delay, 15 retransmission
+	nrf24_WriteReg(SETUP_RETR, 0x03); // 0x03 = 250us delay, 3 retransmissions
 	nrf24_WriteReg(RF_CH, 0x02);
 	nrf24_WriteReg(RF_SETUP, 0x0E); // 0x0E = 2Mbps ||  0x06 = 1Mbps
 	nrf24_WriteReg(STATUS, 0x00);
