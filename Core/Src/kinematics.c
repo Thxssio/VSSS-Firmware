@@ -59,8 +59,7 @@ float LinearToRPM(float v) {
 }
 
 float RPMToLinear(double RPM){
-	float linear_velocity = (RPM * 2 * M_PI * WHEEL_RADIUS);
-    return linear_velocity;
+	float linear_velocity = (RPM * 2 * M_PI * WHEEL_RADIUS) / 60.0f;
 }
 
 /**
