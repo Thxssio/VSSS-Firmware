@@ -26,12 +26,13 @@
 void NRF24_Init (void);
 
 void NRF24_TxMode (uint8_t *Address, uint8_t channel);
-uint8_t NRF24_Transmit (uint8_t *data);
+uint8_t NRF24_Transmit(uint8_t *data, uint8_t size);
+uint8_t nrf24_ReadReg(uint8_t reg);
+
 
 void NRF24_RxMode (uint8_t *Address, uint8_t channel);
 uint8_t isDataAvailable (int pipenum);
 void NRF24_Receive (uint8_t *data);
-
 void NRF24_ReadAll (uint8_t *data);
 
 /* Memory Map */
@@ -61,6 +62,7 @@ void NRF24_ReadAll (uint8_t *data);
 #define FIFO_STATUS 0x17
 #define DYNPD	    0x1C
 #define FEATURE	    0x1D
+#define RPD 0x09
 
 /* Instruction Mnemonics */
 #define R_REGISTER    0x00
