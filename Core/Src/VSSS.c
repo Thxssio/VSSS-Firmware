@@ -15,6 +15,11 @@ static uint32_t last_rx_time = 0;
 static uint32_t last_blink_time = 0;
 static uint8_t led_state = 0;
 
+static float vL = 0.0f;
+static float vR = 0.0f;
+
+
+
 void VSSS_Init(void) {
     Kinematics_Init();
     NRF24_Init();
@@ -33,6 +38,7 @@ void VSSS_Run(void) {
         Kinematics_SetSpeeds(0.0f, 0.0f);
         HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
     }
+//	Kinematics_SetSpeeds(vL, vR);
 }
 
 void VSSS_ProcessReceivedData(void) {

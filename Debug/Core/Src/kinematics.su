@@ -1,5 +1,5 @@
 ../Core/Src/kinematics.c:31:6:CalibrateGyro	24	static
 ../Core/Src/kinematics.c:44:6:Kinematics_Init	24	static
-../Core/Src/kinematics.c:75:7:LinearToRPM	16	static
+../Core/Src/kinematics.c:75:7:LinearToRPM	24	static
 ../Core/Src/kinematics.c:79:7:RPMToLinear	16	static
 ../Core/Src/kinematics.c:86:6:Kinematics_SetSpeeds	64	static

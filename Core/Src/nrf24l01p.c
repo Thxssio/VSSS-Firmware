@@ -230,7 +230,7 @@ void NRF24_Init(void) {
     // Auto-ACK em todos os pipes (EN_AA=0x3F)
     nrf24_WriteReg(EN_AA, 0x3F);
 
-    // Taxa de dados: 250Kbps (RF_SETUP=0x26)
+    // Taxa de dados: 250Kbps (RF_SETUP=0x26) | Taxa de dados: 1mps (RF_SETUP=0x06)
     nrf24_WriteReg(RF_SETUP, 0x26);
 
     // 15 retransmissões, delay 4000µs (SETUP_RETR=0x4F)

@@ -73,7 +73,7 @@ void Kinematics_Init(void) {
  * @brief Converte velocidade linear para RPM.
  */
 float LinearToRPM(float v) {
-    return (v * 60.0) / (2 * M_PI * WHEEL_RADIUS);
+	float rpm_motor = (v * 60.0f * GEAR_RATIO) / (2 * M_PI * WHEEL_RADIUS);
 }
 
 float RPMToLinear(double RPM){
