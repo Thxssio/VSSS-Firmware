@@ -3,8 +3,6 @@
 #include "encoder.h"
 #include "PID.h"
 #include <math.h>
-#include "IMU.h"
-#include "EKF.h"
 
 #include <string.h>
 #include <stdio.h>
@@ -22,26 +20,10 @@ extern TIM_HandleTypeDef htim1, htim2, htim3, htim4;
 extern UART_HandleTypeDef huart1;
 
 PID_TypeDef pidLeft, pidRight;
-EKF_State ekf;
 
 float accel[3], gyro[3];
 char debug_imu[150];
 
-static float theta_imu = 0.0;
-static float gyro_bias = 0.0; // Compensação do giroscópio
-
-void CalibrateGyro(void) {
-    float sum = 0.0;
-    int samples = 1000;
-
-    for (int i = 0; i < samples; i++) {
-        IMU_GetConvertedData(accel, gyro);
-        sum += gyro[2]; // Captura o bias do giroscópio
-        HAL_Delay(1);
-    }
-
-    gyro_bias = sum / samples; // Calcula a média
-}
 
 void Kinematics_Init(void) {
     HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_ALL);
@@ -49,24 +31,20 @@ void Kinematics_Init(void) {
     HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
     HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
 
-    IMU_Init();
-    EKF_Init(&ekf);
-    CalibrateGyro(); // Calibra a IMU antes de começar
-
     Encoder_Init(&left_encoder, &htim3);
     Encoder_Init(&right_encoder, &htim4);
 
     Motor_Init(&motorLeft, &htim2, TIM_CHANNEL_1, INA1_GPIO_Port, INA1_Pin, INA2_GPIO_Port, INA2_Pin);
     Motor_Init(&motorRight, &htim1, TIM_CHANNEL_1, INB1_GPIO_Port, INB1_Pin, INB2_GPIO_Port, INB2_Pin);
 
-    PID2(&pidLeft, &inputLeft, &outputLeft, &setpoint_left_rpm, 0.5539, 124.0, 0.001194, _PID_CD_DIRECT);
-    PID2(&pidRight, &inputRight, &outputRight, &setpoint_right_rpm, 0.3515, 84.89, 0.001194, _PID_CD_DIRECT);
+    PID2(&pidLeft, &inputLeft, &outputLeft, &setpoint_left_rpm, 1.378, 390.3, 0.001194, _PID_CD_DIRECT);
+    PID2(&pidRight, &inputRight, &outputRight, &setpoint_right_rpm, 1.378, 390.3, 0.001194, _PID_CD_DIRECT);
 
     PID_SetOutputLimits(&pidLeft, -PWM_MAX, PWM_MAX);
     PID_SetOutputLimits(&pidRight, -PWM_MAX, PWM_MAX);
 
-    PID_SetSampleTime(&pidLeft, 10);
-    PID_SetSampleTime(&pidRight, 10);
+    PID_SetSampleTime(&pidLeft, 1);
+    PID_SetSampleTime(&pidRight, 1);
 
     PID_SetMode(&pidLeft, _PID_MODE_AUTOMATIC);
     PID_SetMode(&pidRight, _PID_MODE_AUTOMATIC);
@@ -76,37 +54,22 @@ void Kinematics_Init(void) {
  * @brief Converte velocidade linear para RPM.
  */
 float LinearToRPM(float v) {
-    return (v * 60.0) / (2 * M_PI * WHEEL_RADIUS);
+	double rpm_motor = (v * 60.0f) / (2 * M_PI * WHEEL_RADIUS);
+	return rpm_motor;
 }
 
 float RPMToLinear(double RPM){
-	return (RPM * (2 * M_PI * WHEEL_RADIUS) / 60.0);
+	float linear_velocity = (RPM * 2 * M_PI * WHEEL_RADIUS) / 60.0f;
 }
+
 /**
  * @brief Define as velocidades do robô com base em velocidades lineares (m/s).
- *        Chama `Set_Motor_Speeds()` do `motor_control.c` para aplicar nos motores.
  */
 void Kinematics_SetSpeeds(float vL, float vR) {
     Encoder_Update();
-    IMU_GetConvertedData(accel, gyro);
 
-    theta_imu += (gyro[2] - gyro_bias) * 0.01;
     float vL_real = RPMToLinear(left_encoder.rpm);
     float vR_real = RPMToLinear(right_encoder.rpm);
-
-
-    if (fabs(vL_real) < 0.001 && fabs(vR_real) < 0.001) {
-        theta_imu = ekf.theta;
-    }
-
-
-    EKF_Predict(&ekf, vL_real, vR_real, 0.01);
-    EKF_Update(&ekf, theta_imu, accel[0], accel[1]);
-
-//    snprintf(debug_imu, sizeof(debug_imu),
-//             "EKF: X = %.2f, Y = %.2f, Theta = %.2f rad, Vel = %.2f m/s\r\n",
-//             ekf.x, ekf.y, ekf.theta, ekf.v);
-//    HAL_UART_Transmit(&huart1, (uint8_t*)debug_imu, strlen(debug_imu), HAL_MAX_DELAY);
 
     float target_rpm_left = LinearToRPM(vL);
     float target_rpm_right = LinearToRPM(vR);
@@ -122,4 +85,6 @@ void Kinematics_SetSpeeds(float vL, float vR) {
 
     Motor_Control(fabs(outputLeft), outputLeft >= 0 ? 0 : 1,
                   fabs(outputRight), outputRight >= 0 ? 0 : 1);
+
+
 }

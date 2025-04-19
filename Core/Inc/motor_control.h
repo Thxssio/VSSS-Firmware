@@ -5,7 +5,6 @@
 
 #define PWM_MAX  1699
 #define PWM_MIN  0
-#define OUTPUT_TOLERANCE 3.0
 
 typedef struct {
     TIM_HandleTypeDef *pwm_timer;

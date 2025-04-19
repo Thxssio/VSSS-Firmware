@@ -1,5 +1,4 @@
-../Core/Src/kinematics.c:33:6:CalibrateGyro	2
-../Core/Src/kinematics.c:46:6:Kinematics_Init	1
-../Core/Src/kinematics.c:78:7:LinearToRPM	1
-../Core/Src/kinematics.c:82:7:RPMToLinear	1
-../Core/Src/kinematics.c:89:6:Kinematics_SetSpeeds	5
+../Core/Src/kinematics.c:28:6:Kinematics_Init	1
+../Core/Src/kinematics.c:56:7:LinearToRPM	1
+../Core/Src/kinematics.c:61:7:RPMToLinear	1
+../Core/Src/kinematics.c:69:6:Kinematics_SetSpeeds	3
