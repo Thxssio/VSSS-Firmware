@@ -1,4 +1,0 @@
-../Core/Src/NRF24_Diagnostics.c:11:6:NRF24_Diagnostics_Init	16	static
-../Core/Src/NRF24_Diagnostics.c:15:6:NRF24_UpdateStats	32	static
-../Core/Src/NRF24_Diagnostics.c:25:7:NRF24_CalculateLinkQuality	32	static
-../Core/Src/NRF24_Diagnostics.c:35:6:NRF24_PrintStats	104	static

@@ -1,5 +1,2 @@
-../Core/Src/VSSS.c:23:6:VSSS_Init	1
-../Core/Src/VSSS.c:31:6:VSSS_Run	3
-../Core/Src/VSSS.c:44:6:VSSS_ProcessReceivedData	3
-../Core/Src/VSSS.c:65:6:VSSS_BlinkLED	2
-../Core/Src/VSSS.c:73:6:VSSS_DebugOutput	1
+../Core/Src/VSSS.c:28:6:VSSS_Init	1
+../Core/Src/VSSS.c:37:6:VSSS_Run	4

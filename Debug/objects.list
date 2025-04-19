@@ -1,6 +1,5 @@
 "./Core/Src/EKF.o"
 "./Core/Src/IMU.o"
-"./Core/Src/NRF24_Diagnostics.o"
 "./Core/Src/PID.o"
 "./Core/Src/VSSS.o"
 "./Core/Src/aes.o"

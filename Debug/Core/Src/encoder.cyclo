@@ -1,3 +1,3 @@
-../Core/Src/encoder.c:9:6:Encoder_Init	1
-../Core/Src/encoder.c:17:6:Encoder_Calculate_RPM	4
-../Core/Src/encoder.c:47:6:Encoder_Update	1
+../Core/Src/encoder.c:13:6:Encoder_Init	1
+../Core/Src/encoder.c:21:6:Encoder_Calculate_RPM	4
+../Core/Src/encoder.c:51:6:Encoder_Update	1

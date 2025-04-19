@@ -3,8 +3,7 @@
 
 #include "motor_control.h"
 
-#define WHEEL_RADIUS 0.0295
-#define GEAR_RATIO 150.0
+#define WHEEL_RADIUS 0.06
 
 void Kinematics_Init(void);
 float LinearToRPM(float v);

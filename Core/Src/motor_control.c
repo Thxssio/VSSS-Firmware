@@ -22,28 +22,23 @@ void Motor_Init(Motor_t *motor, TIM_HandleTypeDef *pwm_timer, uint32_t pwm_chann
 }
 
 void Motor_Control(uint32_t pwm_left, uint8_t dir_left, uint32_t pwm_right, uint8_t dir_right) {
-    // --- Motor Esquerdo ---
-    if (pwm_left == 0) {
-        // Short Brake: IN1 = HIGH, IN2 = HIGH
-        HAL_GPIO_WritePin(INA1_GPIO_Port, INA1_Pin, GPIO_PIN_SET);
-        HAL_GPIO_WritePin(INA2_GPIO_Port, INA2_Pin, GPIO_PIN_SET);
-    } else {
-        HAL_GPIO_WritePin(INA1_GPIO_Port, INA1_Pin, (GPIO_PinState)(dir_left));
-        HAL_GPIO_WritePin(INA2_GPIO_Port, INA2_Pin, (GPIO_PinState)(!dir_left));
-    }
+    /*
+     - Motor Esquerdo: PWM no TIM2 CH1
+       pinos de direção: PA1 (dir_left), PA2 (!dir_left) (exemplo)
+     - Motor Direito: PWM no TIM1 CH1
+       pinos de direção: PA9 (dir_right), PA10 (!dir_right) (exemplo)
+     Ajuste conforme seu hardware.
+    */
 
-    // --- Motor Direito ---
-    if (pwm_right == 0) {
-        // Short Brake: IN1 = HIGH, IN2 = HIGH
-        HAL_GPIO_WritePin(INB1_GPIO_Port, INB1_Pin, GPIO_PIN_SET);
-        HAL_GPIO_WritePin(INB2_GPIO_Port, INB2_Pin, GPIO_PIN_SET);
-    } else {
-        HAL_GPIO_WritePin(INB1_GPIO_Port, INB1_Pin, (GPIO_PinState)(dir_right));
-        HAL_GPIO_WritePin(INB2_GPIO_Port, INB2_Pin, (GPIO_PinState)(!dir_right));
-    }
+    // Motor Esquerdo
+    HAL_GPIO_WritePin(INA1_GPIO_Port, INA1_Pin, (GPIO_PinState)(dir_left));
+    HAL_GPIO_WritePin(INA2_GPIO_Port, INA2_Pin, (GPIO_PinState)(!dir_left));
+
+    // Motor Direito
+    HAL_GPIO_WritePin(INB1_GPIO_Port, INB1_Pin,  (GPIO_PinState)(dir_right));
+    HAL_GPIO_WritePin(INB2_GPIO_Port, INB2_Pin, (GPIO_PinState)(!dir_right));
 
     // PWM
     __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, pwm_left);
     __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, pwm_right);
 }
-

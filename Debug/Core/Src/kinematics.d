@@ -32,7 +32,7 @@ Core/Src/kinematics.o: ../Core/Src/kinematics.c ../Core/Inc/kinematics.h \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart.h \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart_ex.h \
  ../Core/Inc/motor_control.h ../Core/Inc/encoder.h ../Core/Inc/PID.h \
- ../Core/Inc/main.h ../Core/Inc/IMU.h
+ ../Core/Inc/main.h ../Core/Inc/IMU.h ../Core/Inc/EKF.h
 ../Core/Inc/kinematics.h:
 ../Core/Inc/motor_control.h:
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h:
@@ -71,3 +71,4 @@ Core/Src/kinematics.o: ../Core/Src/kinematics.c ../Core/Inc/kinematics.h \
 ../Core/Inc/PID.h:
 ../Core/Inc/main.h:
 ../Core/Inc/IMU.h:
+../Core/Inc/EKF.h:
